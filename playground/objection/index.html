@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="shortcut icon" href="img/badge.png">
-    <link rel="icon" href="img/badge.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="./img/badge.png">
+    <link rel="icon" href="./img/badge.png">
     <title>随身异议</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="./style.css" rel="stylesheet">
     <style>
     </style>
 </head>
@@ -17,10 +16,13 @@
 <body>
     <center id="main">
         <div id="title-div">
-            <p id="title1"><img src="img/badge.png" width="15px">&nbsp;&nbsp;随身异议！<noscript><br><span style="color: red;">JavaScript被禁用，网页无法正常工作！</span></noscript></p>
+            <p id="title1"><img src="./img/badge.png" width="15px">&nbsp;&nbsp;随身异议！Ver 1.62&nbsp;&nbsp;<b>请阅读下方说明</b></p>
+            <p>By Shoyu | 演示视频 <a href="https://www.bilibili.com/video/av1351949888/" target="_blank">av1351949888</a> | 
+            <a href="https://github.com/shoyu3/Portable-objection">Github</a>
+            </p>
         </div>
         <div id="obje-div" class="content">
-            <img id="img1" class="hide" src="img/igiari.png" alt="" srcset="" draggable="false"
+            <img id="./img1" class="hide" src="./img/igiari.png" alt="" srcset="" draggable="false"
                 oncontextmenu="return false;">
         </div>
         <div id="panel1">
@@ -67,7 +69,7 @@
                 </optgroup>
             </select>
             <div>
-                <label for="lmd">阈值</label>&nbsp;&nbsp;<span id="lmdv">[5]&nbsp;&nbsp;平放于桌面</span><br />
+                <label for="lmd">阈值(灵敏度)</label>&nbsp;&nbsp;<span id="lmdv">[5]&nbsp;&nbsp;平放于桌面</span><br />
                 <input type="range" id="lmd" name="lmd" list="tickmarks" min="0.2" max="80" value="5" step="0.2" />
                 <datalist id="tickmarks">
                     <option value="0.2" label="0.2" style="margin-left: -3px;"></option>
@@ -80,33 +82,32 @@
 
             </div>
             <div style="font-weight: bold;">
+                <span>使用前请点击 </span>
                 <button id="btn1">测试</button>
                 <span id="sensok">❎</span>
-                <span>播放正常</span><span id="cacheok">💬</span>
+                <span>以正常播放音效</span><span id="cacheok">💬</span>&nbsp;<button id="btn3">🗑️</button>
             </div>
             <div style="line-height: 20px; margin-top: 10px;">
                 <input type="checkbox" id="automusic" name="automusic" value="automusic"
                     style="vertical-align:middle" />
-                <label for="automusic" style="vertical-align:middle">自动播放音乐</label>&nbsp;<button id="btn3">清空音频缓存</button>
+                <label for="automusic" style="vertical-align:middle">自动播放音乐<span> (左下角播放器,展开可更换)</span></label>
             </div>
             <div>
-                <span>双击中间区域隐藏UI，再次双击重新显示</span> <button onclick="info()">其他信息</button>
+                <span>如不能正常使用建议更换Chrome或Edge浏览器<br>双击中间区域隐藏UI，再次双击重新显示<br>移动端(iOS除外)关闭勿扰模式即可体验震动</span>
             </div>
         </div>
     </center>
-
-        
-
-
-
-
-
     <meting-js server="netease" type="playlist" id="9487616885" fixed="true" loop="one" order="list" preload="false"
         list-folded="ture" list-max-height="350px"></meting-js>
     <script src="https://cdn.bootcdn.net/ajax/libs/device.js/0.2.7/device.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/meting/2.0.1/Meting.min.js"></script>
-    <script src="main.js"></script>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.15.1/vconsole.min.js"></script>
+    <script>
+        // VConsole 默认会挂载到 `window.VConsole` 上
+        var vConsole = new window.VConsole();
+    </script> -->
+    <script src="./main.js"></script>
 </body>
 
 </html>
