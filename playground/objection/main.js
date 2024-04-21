@@ -82,7 +82,7 @@ if (selchar === "igiari") {
     localStorage.setItem("igiari_char", "cbt");
 }
 var selvol = localStorage.getItem("igiari_vol") || "igiari";
-document.getElementById("img1").src = "img/" + selvol + ".png";
+document.getElementById("./img1").src = "./img/" + selvol + ".png";
 
 document.getElementById("character").value = selchar;
 document.getElementById("voicetype").value = selvol;
@@ -112,9 +112,9 @@ try {
     }
     localStorage.setItem("igiari_vol", selvol);
     document.getElementById("voicetype").value = selvol;
-    document.getElementById("img1").src = "img/" + selvol + ".png";
+    document.getElementById("./img1").src = "./img/" + selvol + ".png";
     document.getElementById("cacheok").innerHTML = "💬";
-    let _filename ="sound/" + selchar + "/" + selvol + ".mp3";
+    let _filename ="./sound/" + selchar + "/" + selvol + ".mp3";
     let _mp3Key = `cachedMP3_${_filename}`;
     let _cachedMP3 = localStorage.getItem(_mp3Key);
     if (_cachedMP3) {
@@ -315,13 +315,13 @@ document.getElementById("character").addEventListener("change", (e) => {
                 selvol = charvol[selchar][0];
                 localStorage.setItem("igiari_vol", selvol);
                 document.getElementById("voicetype").value = selvol;
-                document.getElementById("img1").src = "img/" + selvol + ".png";
+                document.getElementById("./img1").src = "./img/" + selvol + ".png";
                 document.getElementById("cacheok").innerHTML = "💬";
-                downloadAndCacheMP3("sound/" + selchar + "/" + selvol + ".mp3");
+                downloadAndCacheMP3("./sound/" + selchar + "/" + selvol + ".mp3");
             }
         }
     }
-    let filename="sound/" + selchar + "/" + selvol + ".mp3";
+    let filename="./sound/" + selchar + "/" + selvol + ".mp3";
     let mp3Key = `cachedMP3_${filename}`;
     let cachedMP3 = localStorage.getItem(mp3Key);
     if (cachedMP3) {
@@ -334,9 +334,9 @@ document.getElementById("character").addEventListener("change", (e) => {
 document.getElementById("voicetype").addEventListener("change", (e) => {
     window.selvol = document.getElementById("voicetype").value;
     localStorage.setItem("igiari_vol", selvol);
-    document.getElementById("img1").src = "img/" + selvol + ".png";
+    document.getElementById("./img1").src = "./img/" + selvol + ".png";
     document.getElementById("cacheok").innerHTML = "💬";
-    let filename="sound/" + selchar + "/" + selvol + ".mp3";
+    let filename="./sound/" + selchar + "/" + selvol + ".mp3";
     let mp3Key = `cachedMP3_${filename}`;
     let cachedMP3 = localStorage.getItem(mp3Key);
     if (cachedMP3) {
@@ -358,11 +358,11 @@ function objection() {
         } catch (e) {}
         window.inob = true;
         setTimeout(() => {
-            document.getElementById("img1").classList.remove("hide");
+            document.getElementById("./img1").classList.remove("hide");
             if (!device.ios()) {
                 window.navigator.vibrate(400);
             }
-            shake("img1");
+            shake("./img1");
         }, 200);
         if (automusic) {
             setTimeout(() => {
@@ -375,10 +375,10 @@ function objection() {
         // document.getElementById("lmd").disabled = true;
         document.getElementById("character").disabled = true;
         document.getElementById("voicetype").disabled = true;
-        playMP3("sound/" + selchar + "/" + selvol + ".mp3");
+        playMP3("./sound/" + selchar + "/" + selvol + ".mp3");
         window.timer1 = setTimeout(() => {
             if (inob) {
-                document.getElementById("img1").classList.add("hide");
+                document.getElementById("./img1").classList.add("hide");
                 // for (let ele of document.getElementsByName("vol")) {
                 //     if (ele.value <= 4) {
                 //         ele.disabled = false;
@@ -449,7 +449,3 @@ document.body.addEventListener("keydown", function (event) {
         }
     }
 });
-
-function info(){
-	alert("建议使用 Chrome 浏览器\n除 iOS 外的移动端关闭勿扰模式即可体验震动\n\n从 GitHub/shoyu3/Portable-objection 项目修改");
-}
