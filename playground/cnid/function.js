@@ -29,7 +29,7 @@ labelConfig.forEach((g) => {
   groupsWrap.appendChild(box);
 });
 let areaMap = {};
-fetch("/data.json")
+fetch("data.json")
   .then((r) => r.json())
   .then((d) => {
     areaMap = d;
