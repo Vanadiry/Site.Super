@@ -112,7 +112,7 @@ function renderStepTable(vals, code, steps, sum, mod) {
       )
       .join("") +
     "</tr>";
-  html += `<tr><th>加和</th><td colspan="17" style="text-align:left;">${
+  html += `<tr><th>求和</th><td colspan="17" style="text-align:left;">${
     steps.length === 17
       ? steps.map((s) => s.s).join(" + ") + " = <b>" + sum + "</b>"
       : ""
