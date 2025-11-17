@@ -1,4 +1,4 @@
-这里是 vanadiry.com。
+# vanadiry.com
 
 [之前的仓库](https://github.com/Vanadiry/vanadiry.github.io)现在现在已经不再维护，本站域名不变，内容仓库迁移至这里。
 
