@@ -1,3 +1,7 @@
 {
-  "regions": ["hnd1"]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
+  "regions": ["hnd1"],
+  "framework": null,
+  "public": false
 }
