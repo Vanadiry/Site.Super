@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宣传文本生成器 - Vanadiry</title>
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --panel-bg: #111;
+            --border: #27272a;
+            --text: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: #000;
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP",
+                "Hiragino Sans", "Yu Gothic", sans-serif;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            height: 100vh;
+            gap: 8px;
+        }
+
+        aside {
+            background: var(--panel-bg);
+            padding: 12px;
+            border-right: 1px solid #000;
+            overflow: auto;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            background: #000;
+        }
+
+        header {
+            padding: 10px 16px;
+            border-bottom: 1px solid #111;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+        }
+
+        .field {
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 4px;
+            color: #cbd5e1;
+        }
+
+        .field input[type="text"],
+        .field input[type="number"],
+        .field textarea,
+        .field select {
+            width: 100%;
+            padding: 7px 9px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #050505;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        .inline {
+            display: flex;
+            gap: 6px;
+        }
+
+        .inline>* {
+            flex: 1;
+        }
+
+        .muted {
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        .btn {
+            appearance: none;
+            border-radius: 9px;
+            border: 1px solid #1f2937;
+            background: #111827;
+            color: #f9fafb;
+            padding: 7px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn.primary {
+            background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+            border-color: #7f1d1d;
+        }
+
+        .canvas-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100vh;
+            height: auto;
+            width: auto;
+            background: #000;
+            display: block;
+        }
+
+        footer {
+            padding: 8px 12px;
+            border-top: 1px solid #111;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 900px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                order: 2;
+            }
+
+            main {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 原仓库：https://github.com/mixivalo/ccpgen -->
+    <div class="app">
+        <aside>
+            <h2 style="font-size:14px;margin:4px 0 10px;">设置</h2>
+            <div class="field">
+                <label>背景图</label>
+                <select id="bgSelect">
+                    <option value="background.png">外交部</option>
+                    <option value="background2.png">国防部</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>标语内容</label>
+                <textarea id="text" placeholder="在这里输入要显示的标语内容..."></textarea>
+            </div>
+            <div class="field">
+                <button class="btn" id="highlightGoldBtn" type="button">
+                    将选择的部分标记为金色
+                </button>
+                <div class="muted">
+                    在上面的文本框中选择一部分文字，然后点击此按钮，即可将其标记为金色显示。
+                </div>
+            </div>
+            <div class="inline">
+                <div class="field">
+                    <label>正文字体大小（px）</label>
+                    <input id="fontSize" type="number" value="80" min="24" max="160" step="2">
+                </div>
+                <div class="field">
+                    <label>行间距（比例）</label>
+                    <input id="lineHeight" type="number" value="1.25" step="0.05" min="1" max="2">
+                </div>
+            </div>
+
+            <div class="inline">
+                <div class="field">
+                    <label>左右边距（%）</label>
+                    <input id="marginX" type="number" value="12" min="5" max="25">
+                </div>
+                <div class="field">
+                    <label>起始高度（%）</label>
+                    <input id="startY" type="number" value="22" min="10" max="40">
+                </div>
+            </div>
+
+            <div class="inline">
+                <div class="field">
+                    <label>文字颜色</label>
+                    <input id="textColor" type="color" value="#fdf5e6">
+                </div>
+                <div class="field">
+                    <label>阴影模糊半径（px）</label>
+                    <input id="shadowBlur" type="number" value="6" min="0" max="30">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>字体</label>
+                <select id="fontFamily">
+                    <option value="serif">宋体</option>
+                    <option value="sans">黑体</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>引号</label>
+                <select id="quoteMode">
+                    <option value="both">“...”</option>
+                    <option value="none">无</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>页脚内容（留空则不显示）</label>
+                <input id="footerText" type="text" placeholder="在这里输入页脚内容...">
+            </div>
+
+            <div class="field">
+                <label>页脚字体大小（px）</label>
+                <input id="footerSize" type="number" value="32" min="18" max="80">
+            </div>
+
+            <div style="margin-top:10px;">
+                <button class="btn" id="renderBtn">重新渲染</button>
+                <button class="btn primary" id="saveBtn">保存为JPG</button>
+                <div class="muted">也可以右键或长按图片保存</div>
+            </div>
+        </aside>
+
+        <main>
+            <header>宣传文本生成器</header>
+            <div class="canvas-wrap">
+                <canvas id="cv"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const HIGHLIGHT_COLOR = "#D8AE5C";
+
+        const els = {
+            cv: document.getElementById('cv'),
+            bgSelect: document.getElementById('bgSelect'),
+            text: document.getElementById('text'),
+            fontSize: document.getElementById('fontSize'),
+            lineHeight: document.getElementById('lineHeight'),
+            marginX: document.getElementById('marginX'),
+            startY: document.getElementById('startY'),
+            textColor: document.getElementById('textColor'),
+            shadowBlur: document.getElementById('shadowBlur'),
+            fontFamily: document.getElementById('fontFamily'),
+            quoteMode: document.getElementById('quoteMode'),
+            footerText: document.getElementById('footerText'),
+            footerSize: document.getElementById('footerSize'),
+            renderBtn: document.getElementById('renderBtn'),
+            saveBtn: document.getElementById('saveBtn'),
+            highlightGoldBtn: document.getElementById('highlightGoldBtn')
+        };
+
+        // 年月日を「2025年11月13日」形式で返す
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = d.getMonth() + 1;
+            const day = d.getDate();
+            return `${y}年${m}月${day}日`;
+        }
+
+        // 背景読み込み関数
+        let bgImg;
+        function loadBackground(name) {
+            bgImg = new Image();
+            bgImg.onload = () => {
+                els.cv.width = bgImg.width;
+                els.cv.height = bgImg.height;
+                render();
+            };
+            bgImg.src = './' + name;
+        }
+
+        // 初期テキスト，
+        els.text.value =
+            "或走十個枝亭汁兆畫丁燈抄朱它者洋常門時雞能步\n\n" +
+            "喜這借嗎長辛枝羽世木紅對室牠害風蝶重快\n\n" +
+            "这只是一段中文占位字符因此没有任何意义";
+
+        // footer 初期値（外交部 + 今日）
+        els.footerText.value = "外交部发言人 " + formatDate(new Date());
+
+        // 初期背景（外交部）
+        loadBackground('background.png');
+
+        function getFontFamily() {
+            if (els.fontFamily.value === 'serif') {
+                return '"Songti SC","SimSun","STSong",serif';
+            }
+            return '"PingFang SC","Microsoft YaHei","Heiti SC",sans-serif';
+        }
+
+        // [g]...[/g] を解析して色付きトークン列に変換
+        function parseTokens(text, baseColor, highlightColor) {
+            const tokens = [];
+            let i = 0;
+            let currentColor = baseColor;
+            while (i < text.length) {
+                if (text.startsWith("[g]", i)) {
+                    currentColor = highlightColor;
+                    i += 3;
+                    continue;
+                }
+                if (text.startsWith("[/g]", i)) {
+                    currentColor = baseColor;
+                    i += 4;
+                    continue;
+                }
+                const ch = text[i];
+                tokens.push({ char: ch, color: currentColor });
+                i++;
+            }
+            return tokens;
+        }
+
+        // トークン列を行ごとに分割（自動折り返し）
+        function layoutTokens(ctx, tokens, maxWidth) {
+            const lines = [];
+            let currentTokens = [];
+            let currentWidth = 0;
+
+            for (const t of tokens) {
+                if (t.char === "\n") {
+                    // 改行で行を確定
+                    lines.push({ tokens: currentTokens, width: currentWidth });
+                    currentTokens = [];
+                    currentWidth = 0;
+                    continue;
+                }
+
+                const w = ctx.measureText(t.char).width;
+                if (currentWidth + w > maxWidth && currentTokens.length > 0) {
+                    // 折り返し
+                    lines.push({ tokens: currentTokens, width: currentWidth });
+                    currentTokens = [t];
+                    currentWidth = w;
+                } else {
+                    currentTokens.push(t);
+                    currentWidth += w;
+                }
+            }
+
+            if (currentTokens.length > 0) {
+                lines.push({ tokens: currentTokens, width: currentWidth });
+            }
+
+            return lines;
+        }
+
+        function render() {
+            const cv = els.cv;
+            const ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+
+            // 背景
+            if (bgImg && bgImg.complete) {
+                ctx.drawImage(bgImg, 0, 0, cv.width, cv.height);
+            } else {
+                ctx.fillStyle = "#7a1010";
+                ctx.fillRect(0, 0, cv.width, cv.height);
+            }
+
+            const W = cv.width;
+            const H = cv.height;
+
+            // テキスト設定
+            const fontSize = parseInt(els.fontSize.value, 10) || 80;
+            const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
+            const marginX = (parseFloat(els.marginX.value) || 10) / 100;
+            const startYRatio = (parseFloat(els.startY.value) || 20) / 100;
+            const baseColor = els.textColor.value || "#ffffff";
+            const shadowBlur = parseInt(els.shadowBlur.value, 10) || 0;
+
+            const areaX = W * marginX;
+            const areaW = W - areaX * 2;
+            const startY = H * startYRatio;
+
+            // 本文（引用符＋トークン化）
+            let raw = els.text.value;
+            if (els.quoteMode.value === "both" && raw.trim()) {
+                raw = "“" + raw + "”";
+            }
+
+            ctx.save();
+            ctx.textBaseline = "top";
+            ctx.shadowColor = "rgba(0,0,0,0.85)";
+            ctx.shadowBlur = shadowBlur;
+            ctx.font = `700 ${fontSize}px ${getFontFamily()}`;
+
+            const tokens = parseTokens(raw, baseColor, HIGHLIGHT_COLOR);
+            const lines = layoutTokens(ctx, tokens, areaW);
+            const linePx = fontSize * lineHeight;
+
+            let y = startY;
+            for (const line of lines) {
+                const xStart = (W - line.width) / 2;
+                let x = xStart;
+                for (const t of line.tokens) {
+                    ctx.fillStyle = t.color;
+                    ctx.fillText(t.char, x, y);
+                    x += ctx.measureText(t.char).width;
+                }
+                y += linePx;
+            }
+            ctx.restore();
+
+            // フッター
+            const footerText = els.footerText.value.trim();
+            if (footerText) {
+                const fSize = parseInt(els.footerSize.value, 10) || 32;
+                const bottomMargin = H * 0.06;
+
+                ctx.save();
+                ctx.font = `500 ${fSize}px "Songti SC","SimSun","STSong",serif`;
+                ctx.textBaseline = "alphabetic";
+                ctx.textAlign = "center";
+                ctx.fillStyle = baseColor;
+                ctx.shadowColor = "rgba(0,0,0,0.9)";
+                ctx.shadowBlur = shadowBlur;
+
+                const yFooter = H - bottomMargin;
+                // 上に細いライン
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 0.85;
+                ctx.fillRect(W * 0.15, yFooter - fSize * 1.6, W * 0.70, 2);
+
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = shadowBlur;
+                ctx.fillText(footerText, W / 2, yFooter);
+                ctx.restore();
+            }
+        }
+
+        // 背景切り替えイベント
+        els.bgSelect.addEventListener('change', () => {
+            const selected = els.bgSelect.value;
+            loadBackground(selected);
+            const today = formatDate(new Date());
+            if (selected === 'background2.png') {
+                els.footerText.value = `国防部发言人 ${today}`;
+            } else {
+                els.footerText.value = `外交部发言人 ${today}`;
+            }
+            render();
+        });
+
+        // テキスト選択部分を [g]…[/g] で囲んで金色にする
+        els.highlightGoldBtn.addEventListener('click', () => {
+            const ta = els.text;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            if (start === end) return; // 選択なし
+
+            const value = ta.value;
+            const before = value.slice(0, start);
+            const selected = value.slice(start, end);
+            const after = value.slice(end);
+
+            ta.value = before + "[g]" + selected + "[/g]" + after;
+
+            // 一応カーソルをハイライト末尾に移動
+            const newPos = before.length + "[g]".length + selected.length + "[/g]".length;
+            ta.focus();
+            ta.selectionStart = ta.selectionEnd = newPos;
+
+            render();
+        });
+
+        // 入力のたびに再描画
+        [
+            "text", "fontSize", "lineHeight", "marginX", "startY",
+            "textColor", "shadowBlur", "fontFamily", "quoteMode",
+            "footerText", "footerSize"
+        ].forEach(id => {
+            els[id].addEventListener("input", render);
+        });
+
+        els.renderBtn.addEventListener("click", render);
+
+        els.saveBtn.addEventListener("click", () => {
+            const src = els.cv; // 元キャンバス
+
+            // ★ 保存用の低解像度キャンバス作成
+            const scale = 0.5;  // ← 解像度 50%（お好みで 0.3〜0.7 に変更可）
+            const w = src.width * scale;
+            const h = src.height * scale;
+
+            const off = document.createElement("canvas");
+            off.width = w;
+            off.height = h;
+
+            const offCtx = off.getContext("2d");
+            offCtx.drawImage(src, 0, 0, w, h);
+
+            // ★ JPEG で保存（超高速）
+            off.toBlob((blob) => {
+                if (!blob) return;
+
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "download.jpg";
+                a.click();
+                URL.revokeObjectURL(url);
+            }, "image/jpeg", 0.92);
+        });
+
+        // 初期描画（背景読み込み前は赤ベタ＋テキスト、読み込み後に自動で再描画）
+        window.onload = render;
+    </script>
+</body>
+
+</html>
