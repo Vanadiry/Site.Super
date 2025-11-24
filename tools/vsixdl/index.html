@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>VSCode 扩展 VSIX 下载器 - Vanadiry</title>
+    <link rel="stylesheet" href="style.css">
+
+    <meta name="description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
+    <meta name="keywords" content="VSCode 扩展, VSCode 插件下载, Visual Studio Code Extensions, VSIX, VSCode 历史版本, Vanadiry">
+    <meta name="author" content="Vanadiry">
+    <meta name="robots" content="index,follow">
+    <meta property="og:title" content="VSCode 扩展 VSIX 下载器 - Vanadiry">
+    <meta property="og:description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanadiry.com/">
+    <meta property="og:image" content="https://data.vanadiry.com/site/siteicon.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>🎉 VSCode 扩展下载器</h2>
+        <div class="search-box">
+            <input id="keyword" placeholder="输入关键词 或 publisher.extension">
+            <button onclick="searchByKeyword()">关键词搜索</button>
+            <button onclick="searchById()">ID 搜索</button>
+            <button onclick="location.reload()">刷新</button>
+        </div>
+        <div id="results" class="results-grid">
+            <p>微软不让从网页上直接下载VSCode插件的文件了😅<br />
+                所以做了这个网站，用来下载他不让下载的😋<br /><br /><br />
+                请先阅读这段说明：<br /><br />
+                请输入插件的关键词，然后点击“关键词搜索”即可。<br />
+                如果你知道类似“ms-python.python”的插件id，请输入它，然后点击“ID搜索”。<br /><br />
+                下载好后应该是个叫“Microsoft.VisualStudio.Services.VSIXPackage”的文件。<br />
+                请将扩展名修改为.vsix，即可正常导入使用。<br /><br /><br />
+                本页完全使用微软的API，不保存你的任何数据。<br />
+                联系方式<a href="https://magic.vanadiry.com/about/contact/">点此</a>，希望你用的开心:)
+            </p>
+        </div>
+        <footer>
+            <br /><br />© 2026 <a href="https://vanadiry.com/">Vanadiry</a> 版权所有
+        </footer>
+    </div>
+    <script>
+        const API = "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery";
+        const HEADERS = {
+            "Content-Type": "application/json",
+            "Accept": "application/json;api-version=3.0-preview.1",
+            "User-Agent": "VSCode",
+            "X-Market-Client-Id": "VSCode"
+        };
+        async function searchByKeyword() {
+            const q = document.getElementById("keyword").value.trim();
+            if (!q) return alert("请输入关键词");
+            const payload = {
+                filters: [
+                    {
+                        criteria: [
+                            { filterType: 10, value: q } // 模糊搜索
+                        ],
+                        pageNumber: 1,
+                        pageSize: 50
+                    }
+                ],
+                flags: 914
+            };
+
+            runSearch(payload);
+        }
+        async function searchById() {
+            const q = document.getElementById("keyword").value.trim();
+            if (!q.includes(".")) return alert("请用 publisher.extension 的格式");
+            const payload = {
+                filters: [
+                    {
+                        criteria: [
+                            { filterType: 7, value: q }
+                        ],
+                        pageNumber: 1,
+                        pageSize: 10
+                    }
+                ],
+                flags: 914
+            };
+            runSearch(payload);
+        }
+        // 通用搜索执行
+        async function runSearch(payload) {
+            const container = document.getElementById("results");
+            container.innerHTML = "<p>搜索中…</p>";
+            const res = await fetch(API, {
+                method: "POST",
+                headers: HEADERS,
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            const list = json.results[0].extensions || [];
+            if (list.length === 0) {
+                container.innerHTML = "<p>无结果。</p>";
+                return;
+            }
+            container.innerHTML = "";
+            list.forEach(ext => container.appendChild(renderCard(ext)));
+        }
+        function renderCard(ext) {
+            const latest = ext.versions[0];
+            let icon =
+                latest.files.find(f => f.assetType === "Microsoft.VisualStudio.Services.Icons.Default")?.source ||
+                latest.files.find(f => f.assetType === "Microsoft.VisualStudio.Services.Icons.Small")?.source ||
+                "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzg4OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgc3Ryb2tlPSIjODg4IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiPjwvY2lyY2xlPjxwYXRoIGQ9Ik0xMiAxN2guMDEgTTkuMDkgOWEzIDMgMCAxIDEgNS44MiAxYy0uNTcgMS0uODIgMS0xLjQxIDIiIHN0cm9rZT0iI0I4OCIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcGF0aD48L3N2Zz4=";
+            const vsix = latest.files.find(f => f.assetType === "Microsoft.VisualStudio.Services.VSIXPackage")?.source;
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+        <div class="header-row">
+            <img src="${icon}" alt="icon">
+            <div>
+                <div class="card-title">${ext.displayName}</div>
+                <div class="card-sub">${ext.publisher.publisherName} • v${latest.version}</div>
+            </div>
+        </div>
+        <div class="card-desc">${ext.shortDescription || "暂无描述"}</div>
+        <div class="button-row">
+            <button class="small" onclick="downloadVSIX('${vsix}')">
+                下载 VSIX
+            </button>
+            <button class="small" onclick="viewHistory('${ext.publisher.publisherName}', '${ext.extensionName}')">
+                历史版本
+            </button>
+        </div>
+    `;
+            return card;
+        }
+        function downloadVSIX(url) {
+            alert("请手动将下载好文件的扩展名，修改为.vsix。\n关闭窗口开始下载。");
+            const a = document.createElement("a");
+            a.href = url;
+            a.click();
+        }
+        function viewHistory(pub, name) {
+            location.href = `versions.html?ext=${pub}.${name}`;
+        }
+    </script>
+</body>
+
+</html>
