@@ -1,196 +1,415 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <title>Bilibili 等级计算器 - Vanadiry</title>
+    <script src="/assets/control.js"></script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B站六级计算器 - Vanadiry</title>
-    <meta name="robots" content="noindex,nofollow">
-	<link rel="stylesheet" href="layui/layui.css" />
-	<script type="text/javascript" src="layui/layui.js"></script>
-	<link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico" />
+    <meta name="description" content="Bilibili 等级计算器：根据你的每日登录、观看、分享、投币情况，模拟经验与硬币变化，精确计算到达 LV2 - LV6 所需天数，并支持自定义目标经验。">
+    <meta name="keywords" content="Bilibili 等级计算器,B站经验计算,B站升级,哔哩哔哩 升级速度,Bilibili 等级模拟器,Vanadiry">
+    <meta name="author" content="Vanadiry">
+    <meta name="robots" content="index,follow">
+    <meta property="og:title" content="Bilibili 等级计算器 - Vanadiry">
+    <meta property="og:description" content="每日模拟经验增长、硬币消耗与风纪委员奖励，让你精确预测升级所需时间。支持 LV2-LV6 与自定义目标经验。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanadiry.com/tools/blv6/">
+    <meta property="og:image" content="https://data.vanadiry.com/site/siteicon.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
+    <style>
+        :root {
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --accent: #2563eb;
+            --accent-dark: #1d4ed8;
+            --border: #d1d5db;
+            --shadow: 0 2px 8px #00000015;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .card {
+            max-width: 640px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 20px 22px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            margin: 0 0 18px;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .field {
+            margin-bottom: 8px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 9px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .row>.field {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 18px;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.05s;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 14px 14px 14px 16px;
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .result p {
+            margin: 4px 0;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .muted {
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .level-line {
+            margin-left: 4px;
+        }
+
+        .footer {
+            max-width: 640px;
+            margin: 20px auto 0;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #9ca3af;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
-	<form class="layui-form" lay-filter="formBili">
-		<div class="layui-form-item">
-			<label class="layui-form-label">每日登录</label>
-			<div class="layui-input-block">
-				<input type="checkbox" lay-filter="checkbox1" name="like[login]" value="login" title="登录 B 站 经验+5">
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<label class="layui-form-label">每日观看</label>
-			<div class="layui-input-block">
-				<input type="checkbox" lay-filter="checkbox2" name="like[watch]" value="watch" title="观看视频 经验+5">
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<label class="layui-form-label">每日分享</label>
-			<div class="layui-input-block">
-				<input type="checkbox" lay-filter="checkbox3" name="like[share]" value="share" title="分享视频 经验+5">
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<label class="layui-form-label">夹击妹抖</label>
-			<div class="layui-input-block">
-				<input type="checkbox" lay-filter="checkbox4" name="like[judgeMen]" value="judgeMen" title="月度 S 级 硬币+30">
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<label class="layui-form-label">每日投币</label>
-			<div class="layui-input-inline">
-				<select name="quiz1" lay-filter="select1">
-					<option value="0" selected="">白嫖</option>
-					<option value="1">每天 1 币</option>
-					<option value="2">每天 2 币</option>
-					<option value="3">每天 3 币</option>
-					<option value="4">每天 4 币</option>
-					<option value="5">每天 5 币</option>
-				</select>
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<div class="layui-inline">
-				<label class="layui-form-label">当前硬币</label>
-				<div class="layui-input-inline">
-					<input type="text" id="yingbi" autocomplete="off" class="layui-input" value="10"
-						oninput="only_number(this,1);" />
-				</div>
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<div class="layui-inline">
-				<label class="layui-form-label">当前经验</label>
-				<div class="layui-input-inline">
-					<input type="number" id="thisJingYan" autocomplete="off" class="layui-input" value="0"
-						oninput="only_number(this,2);" />
-				</div>
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<div class="layui-inline">
-				<label class="layui-form-label">目标经验</label>
-				<div class="layui-input-inline">
-					<input type="number" id="sixJingYan" autocomplete="off" class="layui-input" value="28800"
-						oninput="only_number(this,3);" />
-				</div>
-			</div>
-		</div>
-		<div class="layui-form-item">
-			<div class="layui-inline">
-				<label class="layui-form-label">剩余天数</label>
-				<div class="layui-input-block" align="center" style="min-width: 180px;min-height: 90px;">
-					<div style="margin-top: 18px;">
-						<span id="juLiTianShu" style="font-size: 40px;color: #ff99cc;">Null</span>
-						<br>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
-	<script>
-		var login = false;
-		var watch = false;
-		var share = false;
-		var judgeMen = false;
-		var touBiShuLiang = 0;
-		var yongYouYingBi = 10;
-		var thisJingYan = 0;
-		var sixJingYan = 28800;
-		layui.use('form', function () {
-			var form = layui.form;
-			var $ = layui.$;
-			form.on('checkbox(checkbox1)', function (data) {
-				console.log(data.elem.checked);
-
-				login = data.elem.checked;
-				jiSuan();
-			});
-			form.on('checkbox(checkbox2)', function (data) {
-				console.log(data.elem.checked);
-
-				watch = data.elem.checked;
-				jiSuan();
-			});
-			form.on('checkbox(checkbox3)', function (data) {
-				console.log(data.elem.checked);
-				share = data.elem.checked;
-				jiSuan();
-			});
-			form.on('checkbox(checkbox4)', function (data) {
-				console.log(data.elem.checked);
-				judgeMen = data.elem.checked;
-				jiSuan();
-			});
-			form.on('select(select1)', function (data) {
-				if (data.value == null || data.value == "") {
-					touBiShuLiang = 0;
-				} else {
-					touBiShuLiang = data.value;
-				}
-				jiSuan();
-			});
-		});
-		function only_number(obj, type) {
-			obj.value = obj.value.replace(/[^\d.]/g, "");
-			obj.value = obj.value.replace(/^\./g, "");
-			obj.value = obj.value.replace(/\.{2,}/g, ".");
-			obj.value = obj.value.replace(".", "$#$").replace(/\./g, "").replace("$#$", ".");
-			if (type == 1) {
-				yongYouYingBi = obj.value;
-			} else if (type == 2) {
-				thisJingYan = obj.value;
-			} else if (type == 3) {
-				sixJingYan = obj.value;
-			}
-			jiSuan();
-		}
-		function jiSuan() {
-			var num = 0;
-			if (login == true || login == "true") {
-				num = num + 5;
-			}
-			if (watch == true || watch == "true") {
-				num = num + 5;
-			}
-			if (share == true || share == "true") {
-				num = num + 5;
-			}
-			console.log("每日基础=" + num);
-			var touBi = (touBiShuLiang * 10);
-			console.log("每日投币=" + touBi);
-			var bi = yongYouYingBi;
-			console.log("拥有硬币=" + touBi);
-			var xuYaoJingYan;
-			if (sixJingYan > thisJingYan) {
-				xuYaoJingYan = sixJingYan - thisJingYan;
-			} else {
-				document.getElementById("juLiTianShu").innerText = 0;
-			}
-			var tian = 0;
-			for (var i = 0; 0 < xuYaoJingYan; i++) {
-				if (judgeMen) {
-					if (i % 30 === 0) {
-						bi += 30;
-					}
-				}
-				xuYaoJingYan = xuYaoJingYan - num;
-				if (bi > touBiShuLiang) {
-					xuYaoJingYan = xuYaoJingYan - touBi;
-					bi = bi - touBiShuLiang;
-				}
-				bi++;
-				tian = i;
-				if (tian > 10000) {
-					document.getElementById("juLiTianShu").innerText = tian;
-					return;
-				}
-			}
-			document.getElementById("juLiTianShu").innerText = tian;
-		}
-	</script>
-
+    <div class="card">
+        <h2>Bilibili 等级计算器</h2>
+        <p class="subtitle">根据你的每日行为，模拟未来经验与硬币变化，估算升级所需时间。</p>
+        <div class="field">
+            <label for="curExp">当前经验</label>
+            <input type="number" id="curExp" value="0" min="0" />
+        </div>
+        <div class="field">
+            <label for="targetExp">目标经验（默认 28800 = LV6）</label>
+            <input type="number" id="targetExp" value="28800" min="0" />
+        </div>
+        <div class="field">
+            <label for="coins">当前硬币（起始可用硬币数量）</label>
+            <input type="number" id="coins" value="0" min="0" />
+        </div>
+        <label>每日行为</label>
+        <div class="row">
+            <div class="field">
+                <label for="dailyLogin">每日登录</label>
+                <select id="dailyLogin">
+                    <option value="1">是（+5 经验，+1 硬币）</option>
+                    <option value="0">否</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="dailyWatch">每日观看视频</label>
+                <select id="dailyWatch">
+                    <option value="1">是（+5 经验）</option>
+                    <option value="0">否</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="dailyShare">每日分享视频</label>
+                <select id="dailyShare">
+                    <option value="1">是（+5 经验）</option>
+                    <option value="0">否</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="field">
+                <label for="dailyCoin">每日投币数量（0～5）</label>
+                <select id="dailyCoin">
+                    <option value="0">0 个</option>
+                    <option value="1">1 个</option>
+                    <option value="2">2 个</option>
+                    <option value="3">3 个</option>
+                    <option value="4">4 个</option>
+                    <option value="5">5 个</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="judgeS">是否为风纪委员月度 S</label>
+                <select id="judgeS">
+                    <option value="0">否</option>
+                    <option value="1">是（每 30 天 +30 硬币）</option>
+                </select>
+            </div>
+        </div>
+        <button id="calcBtn">开始计算</button>
+        <div id="resultBox" class="result hidden"></div>
+    </div>
+    <div class="footer">
+        © 2026 <a href="https://vanadiry.com/">Vanadiry</a>
+    </div>
+    <script>
+        const LEVEL_EXP = {
+            1: 0,
+            2: 200,
+            3: 1500,
+            4: 4500,
+            5: 10800,
+            6: 28800
+        };
+        function levelFromExp(exp) {
+            let lv = 1;
+            for (let i = 1; i <= 6; i++) {
+                if (exp >= LEVEL_EXP[i]) lv = i;
+            }
+            return lv;
+        }
+        function simulate(config) {
+            const {
+                curExp,
+                targetExp,
+                curCoins,
+                dailyLogin,
+                dailyWatch,
+                dailyShare,
+                dailyCoinDesired,
+                judgeS
+            } = config;
+            let exp = curExp;
+            let coins = curCoins;
+            let day = 0;
+            const baseDailyExp =
+                (dailyLogin ? 5 : 0) +
+                (dailyWatch ? 5 : 0) +
+                (dailyShare ? 5 : 0);
+            // 目标是至少算到 LV6，同时考虑目标经验
+            const maxNeededExp = Math.max(targetExp, LEVEL_EXP[6]);
+            const daysToLevel = { 2: null, 3: null, 4: null, 5: null, 6: null };
+            const targetIsLevel = Object.values(LEVEL_EXP).includes(targetExp);
+            let daysToTarget = null;
+            let coinsZeroDay = null;
+            const maxDays = 7300; // 最多20年
+            while (day < maxDays && (exp < maxNeededExp || (!coinsZeroDay && dailyCoinDesired > 0))) {
+                day++;
+                if (judgeS && day % 30 === 0) {
+                    coins += 30;
+                }
+                if (dailyLogin) {
+                    coins += 1;
+                }
+                let canSpendCoins = dailyCoinDesired;
+                if (coins < canSpendCoins) {
+                    canSpendCoins = Math.max(coins, 0);
+                }
+                coins -= canSpendCoins;
+                if (coinsZeroDay === null && dailyCoinDesired > 0 && coins <= 0) {
+                    coinsZeroDay = day;
+                }
+                const todayExp = baseDailyExp + canSpendCoins * 10;
+                exp += todayExp;
+                for (let lv = 2; lv <= 6; lv++) {
+                    if (daysToLevel[lv] === null && exp >= LEVEL_EXP[lv]) {
+                        daysToLevel[lv] = day;
+                    }
+                }
+                if (!targetIsLevel && daysToTarget === null && exp >= targetExp) {
+                    daysToTarget = day;
+                }
+                if (exp >= maxNeededExp && (dailyCoinDesired === 0 || coinsZeroDay !== null)) {
+                    break;
+                }
+            }
+            const reachedLV6 = daysToLevel[6] !== null;
+            return {
+                baseDailyExp,
+                daysToLevel,
+                daysToTarget,
+                targetIsLevel,
+                coinsZeroDay,
+                finalExp: exp,
+                finalCoins: coins,
+                simulatedDays: day,
+                reachedLV6
+            };
+        }
+        function computeTodayExpPreview(curExp, curCoins, dailyLogin, dailyWatch, dailyShare, dailyCoinDesired) {
+            const base =
+                (dailyLogin ? 5 : 0) +
+                (dailyWatch ? 5 : 0) +
+                (dailyShare ? 5 : 0);
+            let coinsToday = curCoins;
+            if (dailyLogin) coinsToday += 1;
+            const spendToday = Math.min(dailyCoinDesired, Math.max(coinsToday, 0));
+            return base + spendToday * 10;
+        }
+        document.getElementById("calcBtn").addEventListener("click", function () {
+            const curExp = Math.max(0, Number(document.getElementById("curExp").value) || 0);
+            const targetExp = Math.max(0, Number(document.getElementById("targetExp").value) || 0);
+            const curCoins = Math.max(0, Number(document.getElementById("coins").value) || 0);
+            const dailyLogin = document.getElementById("dailyLogin").value === "1";
+            const dailyWatch = document.getElementById("dailyWatch").value === "1";
+            const dailyShare = document.getElementById("dailyShare").value === "1";
+            let dailyCoinDesired = Number(document.getElementById("dailyCoin").value) || 0;
+            const judgeS = document.getElementById("judgeS").value === "1";
+            if (dailyCoinDesired < 0) dailyCoinDesired = 0;
+            if (dailyCoinDesired > 5) dailyCoinDesired = 5;
+            const todayExp = computeTodayExpPreview(
+                curExp,
+                curCoins,
+                dailyLogin,
+                dailyWatch,
+                dailyShare,
+                dailyCoinDesired
+            );
+            const sim = simulate({
+                curExp,
+                targetExp,
+                curCoins,
+                dailyLogin,
+                dailyWatch,
+                dailyShare,
+                dailyCoinDesired,
+                judgeS
+            });
+            const resultBox = document.getElementById("resultBox");
+            resultBox.classList.remove("hidden");
+            const currentLevel = levelFromExp(curExp);
+            let html = "";
+            html += `<p class="result-title">📊 计算结果</p>`;
+            html += `<p>你目前是 <b>LV${currentLevel}</b>。</p>`;
+            html += `<p>按当前配置，第 1 天你可以获得 <b>${todayExp}</b> 点经验。</p>`;
+            html += `<p class="muted">等级进度：</p>`;
+            for (let lv = 2; lv <= 6; lv++) {
+                if (currentLevel >= lv) {
+                    // 已经到达该等级，就不再显示“剩余天数”
+                    continue;
+                }
+                const needExp = LEVEL_EXP[lv];
+                const days = sim.daysToLevel[lv];
+                if (days === null) {
+                    html += `<p class="level-line">· LV${lv}（需要 ${needExp} 经验）：以当前配置，在模拟范围内无法到达。</p>`;
+                } else {
+                    html += `<p class="level-line">· 剩余约 <b>${days}</b> 天到 LV${lv}（需要 ${needExp} 经验）。</p>`;
+                }
+            }
+            // 目标经验
+            const isLevelTarget = sim.targetIsLevel;
+            if (!isLevelTarget) {
+                if (targetExp === 0) {
+                    html += `<p class="level-line">· 目标经验为 0，你已经达到。</p>`;
+                } else if (sim.daysToTarget === null) {
+                    html += `<p class="level-line">· 目标经验 ${targetExp}：以当前配置，在模拟范围内无法到达。</p>`;
+                } else {
+                    html += `<p class="level-line">· 剩余约 <b>${sim.daysToTarget}</b> 天可到达目标经验 <b>${targetExp}</b>。</p>`;
+                }
+            }
+            // 硬币情况
+            html += `<p class="muted" style="margin-top:10px;">硬币使用情况：</p>`;
+            if (dailyCoinDesired === 0) {
+                html += `<p class="level-line">· 你选择了不投币，模拟过程中不会消耗硬币，最终大约还剩余 <b>${Math.round(sim.finalCoins)}</b> 个硬币。</p>`;
+            } else {
+                if (sim.coinsZeroDay !== null) {
+                    html += `<p class="level-line">· 按当前每日投币配置，预计在第 <b>${sim.coinsZeroDay}</b> 天时，硬币会首次被花完。</p>`;
+                } else {
+                    if (sim.reachedLV6) {
+                        html += `<p class="level-line">· 在升级到 LV6 的过程中，你的硬币始终没有被花完，模拟到 LV6 后大约还剩余 <b>${Math.round(sim.finalCoins)}</b> 个硬币。</p>`;
+                    } else {
+                        html += `<p class="level-line">· 在模拟周期结束时，你的硬币仍未全部花完，大约还剩余 <b>${Math.round(sim.finalCoins)}</b> 个硬币。</p>`;
+                    }
+                }
+            }
+            html += `<p class="muted" style="margin-top:8px;">说明：为了避免极端情况，模拟最多计算 20 年（7300 天）。</p>`;
+            resultBox.innerHTML = html;
+        });
+    </script>
 </body>
 
 </html>

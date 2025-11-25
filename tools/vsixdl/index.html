@@ -5,7 +5,9 @@
     <meta charset="utf-8">
     <title>VSCode 扩展 VSIX 下载器 - Vanadiry</title>
     <link rel="stylesheet" href="style.css">
+    <script src="/assets/control.js"></script>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
     <meta name="keywords" content="VSCode 扩展, VSCode 插件下载, Visual Studio Code Extensions, VSIX, VSCode 历史版本, Vanadiry">
     <meta name="author" content="Vanadiry">
@@ -13,11 +15,10 @@
     <meta property="og:title" content="VSCode 扩展 VSIX 下载器 - Vanadiry">
     <meta property="og:description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vanadiry.com/">
+    <meta property="og:url" content="https://vanadiry.com/tools/vsixdl/">
     <meta property="og:image" content="https://data.vanadiry.com/site/siteicon.png">
     <meta name="theme-color" content="#ffffff">
     <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
-
 </head>
 
 <body>
@@ -30,19 +31,22 @@
             <button onclick="location.reload()">刷新</button>
         </div>
         <div id="results" class="results-grid">
-            <p>微软不让从网页上直接下载VSCode插件的文件了😅<br />
-                所以做了这个网站，用来下载他不让下载的😋<br /><br /><br />
-                请先阅读这段说明：<br /><br />
-                请输入插件的关键词，然后点击“关键词搜索”即可。<br />
-                如果你知道类似“ms-python.python”的插件id，请输入它，然后点击“ID搜索”。<br /><br />
-                下载好后应该是个叫“Microsoft.VisualStudio.Services.VSIXPackage”的文件。<br />
-                请将扩展名修改为.vsix，即可正常导入使用。<br /><br /><br />
-                本页完全使用微软的API，不保存你的任何数据。<br />
-                联系方式<a href="https://magic.vanadiry.com/about/contact/">点此</a>，希望你用的开心:)
-            </p>
+            <div class="intro-text">
+                <p>微软不让从网页上直接下载 VSCode 插件的文件了 😅<br />
+                    所以做了这个网站，用来下载他不让下载的 😋<br /><br />
+                    <strong>搜索模式：</strong><br />
+                    关键词搜索：模糊搜索，类似 VSCode 的搜索模式。<br />
+                    ID 搜索：如果你知道类似 “ms-python.python” 的插件 ID，请输入，然后用此搜索模式。<br /><br />
+                    <strong>下载之后：</strong><br />
+                    你应该会拿到叫作 <code>Microsoft.VisualStudio.Services.VSIXPackage</code> 的文件，还不能直接用。<br />
+                    需要将扩展名修改为 <code>.vsix</code> ，即可导入使用。<br /><br />
+                    页面调用微软官方 API，不会保存你的任何数据。<br />
+                    联系方式：<a href="https://magic.vanadiry.com/about/contact/">点此</a>，希望你用得开心 :)
+                </p>
+            </div>
         </div>
-        <footer>
-            <br /><br />© 2026 <a href="https://vanadiry.com/">Vanadiry</a> 版权所有
+        <footer class="site-footer">
+            © 2026 <a href="https://vanadiry.com/">Vanadiry</a> 版权所有
         </footer>
     </div>
     <script>
@@ -73,7 +77,7 @@
         }
         async function searchById() {
             const q = document.getElementById("keyword").value.trim();
-            if (!q.includes(".")) return alert("请用 publisher.extension 的格式");
+            if (!q.includes(".")) return alert("请输入 publisher.extension 格式的扩展 ID");
             const payload = {
                 filters: [
                     {
@@ -91,7 +95,7 @@
         // 通用搜索执行
         async function runSearch(payload) {
             const container = document.getElementById("results");
-            container.innerHTML = "<p>搜索中…</p>";
+            container.innerHTML = "<p>搜索中...</p>";
             const res = await fetch(API, {
                 method: "POST",
                 headers: HEADERS,

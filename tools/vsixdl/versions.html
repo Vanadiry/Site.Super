@@ -3,15 +3,28 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>VSCode 扩展历史版本</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./style.css">
+    <title>VSCode 扩展 VSIX 历史版本下载器 - Vanadiry</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/assets/control.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
+    <meta name="keywords" content="VSCode 扩展, VSCode 插件下载, Visual Studio Code Extensions, VSIX, VSCode 历史版本, Vanadiry">
+    <meta name="author" content="Vanadiry">
+    <meta name="robots" content="index,follow">
+    <meta property="og:title" content="VSCode 扩展 VSIX 历史版本下载器 - Vanadiry">
+    <meta property="og:description" content="VSCode 扩展下载器，快速获取 Visual Studio Code 插件版本与离线安装包，支持历史版本查看，适合无法访问官方源的用户使用。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanadiry.com/tools/vsixdl/version.html">
+    <meta property="og:image" content="https://data.vanadiry.com/site/siteicon.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
 </head>
 
 <body>
-
     <div class="container">
-        <h2 id="title">历史版本</h2>
+        <h2 id="title">🎉 VSCode 扩展下载器 - 历史版本</h2>
+        <a class="back-home" href="index.html">← 返回主页</a>
 
         <div class="card" id="ext-card" style="display:none;">
             <div class="header-row">
@@ -23,9 +36,7 @@
                     <div class="info-text" id="ext-id"></div>
                 </div>
             </div>
-
             <div class="card-desc" id="ext-desc"></div>
-
             <div class="info-text">
                 <b>上次更新：</b><code><span id="meta-updated"></span></code><br />
                 <b>发布日期：</b><code><span id="meta-release"></code></span>
@@ -35,19 +46,20 @@
         <div class="card">
             <h3>历史版本</h3>
             <div class="info-text" id="versions-count"></div>
-
             <table>
                 <tbody id="versions-body">
                     <tr>
-                        <td colspan="4">正在加载版本信息…</td>
+                        <td colspan="4">正在加载版本信息...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <div class="info-text" id="status-msg"></div>
+        <footer class="site-footer">
+            © 2026 <a href="https://vanadiry.com/">Vanadiry</a> 版权所有
+        </footer>
 
-        <div class="info-text" id="status-msg" style="color:red; display:none;"></div>
     </div>
-
     <script>
         function getQueryExt() {
             const p = new URLSearchParams(location.search);
@@ -56,13 +68,11 @@
             if (parts.length !== 2) return null;
             return { publisher: parts[0], extension: parts[1] };
         }
-
         function fmt(t) {
             if (!t) return "-";
             const d = new Date(t);
             return isNaN(d) ? t : d.toLocaleString();
         }
-
         async function fetchDetail(pub, ext) {
             const body = {
                 filters: [
@@ -78,7 +88,6 @@
                 ],
                 flags: 55
             };
-
             const res = await fetch("https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery", {
                 method: "POST",
                 headers: {
@@ -89,14 +98,11 @@
                 },
                 body: JSON.stringify(body)
             });
-
             const data = await res.json();
             return data?.results?.[0]?.extensions?.[0] || null;
         }
-
         function render(ext) {
             document.getElementById("ext-card").style.display = "block";
-
             document.getElementById("ext-name").textContent = ext.displayName || ext.extensionName;
             document.getElementById("ext-publisher").textContent =
                 "开发者：" + (ext.publisher.displayName || ext.publisher.publisherName);
@@ -104,25 +110,19 @@
             document.getElementById("ext-desc").textContent = ext.shortDescription || "";
             document.getElementById("meta-updated").textContent = fmt(ext.lastUpdated);
             document.getElementById("meta-release").textContent = fmt(ext.releaseDate);
-
             let logo = "";
             if (ext.versions[0]?.files) {
                 const f = ext.versions[0].files.find(x => x.assetType === "Microsoft.VisualStudio.Services.Icons.Default");
                 if (f) logo = f.source;
             }
             if (logo) document.getElementById("ext-logo").src = logo;
-
             const tbody = document.getElementById("versions-body");
             tbody.innerHTML = "";
             const versions = ext.versions.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-
             document.getElementById("versions-count").textContent = `共 ${versions.length} 个版本`;
-
             versions.forEach(v => {
                 const tr = document.createElement("tr");
-
                 const vsix = (v.files || []).find(f => f.assetType === "Microsoft.VisualStudio.Services.VSIXPackage");
-
                 tr.innerHTML = `
         <td>
           ${vsix
@@ -133,34 +133,28 @@
         <td><span class="version-badge">${v.version}</span></td>
         <td>${fmt(v.lastUpdated)}</td>
       `;
-
                 tbody.appendChild(tr);
             });
         }
-
         async function init() {
             const info = getQueryExt();
             if (!info) {
-                document.getElementById("status-msg").textContent = "URL 必须为 ?ext=publisher.extension";
-                document.getElementById("status-msg").style.display = "block";
+                const el = document.getElementById("status-msg");
+                el.innerHTML = '缺少参数或参数错误<br />请先从 <a href="index.html">扩展下载器主页</a> 搜索，或者传入参数 ext=publisher.extension';
+                el.style.display = "block";
                 return;
             }
-
             try {
                 const ext = await fetchDetail(info.publisher, info.extension);
-                if (!ext) throw new Error("未找到扩展");
-
+                if (!ext) throw new Error("没有找到这个扩展，检查传入参数是否正确？");
                 render(ext);
-
             } catch (e) {
                 document.getElementById("status-msg").textContent = e.message;
                 document.getElementById("status-msg").style.display = "block";
             }
         }
-
         init();
     </script>
-
 </body>
 
 </html>
