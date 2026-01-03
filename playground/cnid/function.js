@@ -154,16 +154,22 @@ function update() {
   let filled17 = vals.slice(0, 17).every((v) => v.length === 1),
     info = "",
     stepHtml = "";
+  
   if (areaCode.length === 6)
     stepHtml += areaValid
-      ? `<div>地区码 <b>${areaCode}</b>：${areaMap[areaCode]}</div>`
+      ? `<div>地区：${areaMap[areaCode]}</div>`
       : `<div style="color:#e00">地区码无效：<b>${areaCode}</b></div>`;
   if (vals.slice(6, 14).every((v) => v.length === 1))
-    stepHtml += `<div>出生日期 <b>${vals.slice(6, 14).join("")}</b>：${
+    stepHtml += `<div>出生日期：${
       birthCheck.valid
-        ? `<span style="color:#2a9d2e;">${birthCheck.msg}</span>`
+        ? `<span>${birthCheck.msg}</span>`
         : `<span style="color:#e00">${birthCheck.msg}</span>`
     }</div>`;
+  if (vals[16]) {
+    const genderNum = parseInt(vals[16]);
+    const gender = genderNum % 2 === 1 ? '男' : '女';
+    stepHtml += `<div>性别：${gender}</div>`;
+  }
   if (filled17) {
     let { code, steps, sum, mod } = calcCheckCode(vals.slice(0, 17).join(""));
     stepHtml += renderStepTable(vals, code, steps, sum, mod);
