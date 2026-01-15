@@ -1,4 +1,2 @@
 User-agent: *
-Disallow: /playground/
-Disallow: /about/
-Disallow: /bulletin/
+Disallow: /info/
