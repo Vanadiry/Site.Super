@@ -140,7 +140,7 @@
         });
 
         let areaTree = {}, areaLoadFailed = false;
-        fetch('data.json')
+        fetch('/lab/cnid/data.json')
             .then(r => r.json()).then(d => { areaTree = d; update(); })
             .catch(() => { areaLoadFailed = true; update(); });
 
