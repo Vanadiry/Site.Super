@@ -1,0 +1,233 @@
+/* 变量 */
+:root {
+  --lab-bg: #f3f4f6;
+  --lab-card-bg: #fff;
+  --lab-text: #1f2937;
+  --lab-text-sub: #6b7280;
+  --lab-accent: #2563eb;
+  --lab-accent-hover: #1d4ed8;
+  --lab-border: #d1d5db;
+  --lab-radius: 8px;
+  --lab-radius-lg: 12px;
+  --lab-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --lab-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --lab-mono: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+}
+
+/* 全局 */
+body {
+  margin: 0;
+  font-family: var(--lab-font);
+  background: var(--lab-bg);
+  color: var(--lab-text);
+  line-height: 1.6;
+}
+
+/* 标题 */
+h2 { margin: 0 0 16px; font-weight: 600; }
+h3 { margin: 0 0 12px; font-weight: 600; font-size: 16px; }
+
+/* 副标题 */
+.lab-subtitle {
+  margin: 0 0 18px;
+  color: var(--lab-text-sub);
+  font-size: 14px;
+}
+
+/* 链接 */
+a { color: var(--lab-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* 布局 */
+
+/* 居中容器 */
+.lab-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 卡片 */
+.lab-card {
+  background: var(--lab-card-bg);
+  padding: 20px;
+  border-radius: var(--lab-radius-lg);
+  box-shadow: var(--lab-shadow);
+}
+
+/* 按钮 */
+.lab-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--lab-radius);
+  background: var(--lab-accent);
+  color: #fff;
+  font-family: var(--lab-font);
+  transition: background 0.2s;
+}
+.lab-btn:hover {
+  background: var(--lab-accent-hover);
+}
+.lab-btn.secondary {
+  background: #e5e7eb;
+  color: var(--lab-text);
+}
+.lab-btn.secondary:hover {
+  background: #d1d5db;
+}
+
+/* 小按钮 */
+.lab-btn-sm {
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--lab-radius);
+  background: #e5e7eb;
+  border: none;
+  font-family: var(--lab-font);
+  transition: background 0.2s;
+  color: var(--lab-text);
+}
+.lab-btn-sm:hover { background: #d1d5db; }
+
+/* 表单 */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select,
+textarea {
+  padding: 9px 10px;
+  border: 1px solid var(--lab-border);
+  border-radius: var(--lab-radius);
+  font-size: 14px;
+  font-family: var(--lab-font);
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+  color: var(--lab-text);
+  transition: border-color 0.2s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--lab-accent);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+
+/* 表格 */
+.lab-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.lab-table th,
+.lab-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  text-align: left;
+}
+.lab-table th {
+  background: #f9fafb;
+  color: #4b5563;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 徽章 */
+.lab-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 13px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  font-family: var(--lab-mono);
+  color: #374151;
+}
+
+/* 页脚 */
+.lab-footer {
+  text-align: center;
+  color: var(--lab-text-sub);
+  font-size: 13px;
+  padding: 20px 0;
+  margin-top: 20px;
+}
+.lab-footer a {
+  color: var(--lab-accent);
+}
+.lab-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 返回链接 */
+.lab-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--lab-accent);
+  text-decoration: none;
+  background: #e0e7ff;
+  border-radius: var(--lab-radius);
+  transition: background 0.2s;
+}
+.lab-back:hover { background: #c7d2fe; }
+
+/* 提示消息 */
+.lab-alert {
+  background: #fee2e2;
+  border-left: 4px solid #dc2626;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: var(--lab-radius);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.lab-alert a { color: var(--lab-accent); }
+
+/* 工具类 */
+.lab-row {
+  display: flex;
+  gap: 12px;
+}
+.lab-row > * { flex: 1; }
+
+.lab-field {
+  margin-bottom: 10px;
+}
+.lab-field label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--lab-text);
+}
+
+.lab-muted {
+  color: var(--lab-text-sub);
+  font-size: 13px;
+}
+
+.lab-mono {
+  font-family: var(--lab-mono);
+}
+
+.lab-hidden {
+  display: none !important;
+}
+
+.lab-text-center { text-align: center; }
+.lab-text-sm { font-size: 13px; }
+.lab-mt { margin-top: 16px; }
+.lab-mb { margin-bottom: 16px; }
+
+/* 响应式 */
+@media (max-width: 700px) {
+  .lab-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>WebPS - Vanadiry</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WebPS 在线图像编辑器，支持文字、图形、图片图层的自由拖拽与样式调整，可导出 PNG 或 JPG。">
+    <meta name="keywords" content="在线图像编辑, 梗图制作, 图片编辑器, WebPS, Vanadiry">
+    <meta name="author" content="Vanadiry">
+    <meta name="robots" content="index,follow">
+    <meta property="og:title" content="WebPS 在线图像编辑器 - Vanadiry">
+    <meta property="og:description" content="支持文字、图形、图片图层的自由拖拽与样式调整，可导出 PNG 或 JPG。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanadiry.com/lab/webps/">
+    <meta property="og:image" content="https://data.vanadiry.com/site/siteicon.png">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
+    <script src="/assets/control.js"></script>
+</head>
+<body>
+    <div class="app" id="app">
+        <div class="canvas-area" id="canvasArea">
+            <div class="canvas-wrap">
+                <canvas id="cv"></canvas>
+            </div>
+        </div>
+        <div class="resize-handle" id="resizeHandle"></div>
+        <aside id="sidebar">
+            <div class="panel-section">
+                <div class="section-title"><span class="collapse-btn"></span> 功能</div>
+                <div class="label-row">添加</div>
+                <div class="btn-row">
+                    <button class="btn" id="btnAddText">文字</button>
+                    <button class="btn" id="btnAddImage">图片</button>
+                    <button class="btn" id="btnAddRect">矩形</button>
+                    <button class="btn" id="btnAddEllipse">椭圆</button>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none">
+                </div>
+                <div class="label-row" style="margin-top:8px">快捷操作</div>
+                <div class="btn-row">
+                    <button class="btn" id="btnUndo">撤销</button>
+                    <button class="btn" id="btnRedo">重做</button>
+                </div>
+                <button class="btn" id="btnHelp" style="width:100%;margin-top:8px">基本操作</button>
+            </div>
+            <div class="panel-section">
+                <div class="section-title"><span class="collapse-btn"></span> 项目</div>
+                <div class="btn-row">
+                    <button class="btn" id="btnImport">导入项目</button>
+                    <button class="btn" id="btnReset" style="background:#991b1b;color:#fca5a5">重置全部</button>
+                </div>
+                <div class="field" style="margin-top:6px"><label>预览缩放（-1=适应）</label><input type="number" id="zoomPct" value="-1" min="-1"></div>
+                <input type="file" id="importFile" accept=".vpf" style="display:none">
+            </div>
+            <div class="panel-section">
+                <div class="section-title"><span class="collapse-btn"></span> 画布</div>
+                <div class="field-row">
+                    <div class="field"><label>宽</label><input type="number" id="canvasW" value="500" min="1" autocomplete="off"></div>
+                    <div class="field"><label>高</label><input type="number" id="canvasH" value="500" min="1" autocomplete="off"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="lock-btn" id="lockRatio">锁</button>
+                    <button class="anchor-btn" id="anchorTop">上</button>
+                    <button class="anchor-btn" id="anchorBottom">下</button>
+                    <button class="anchor-btn" id="anchorLeft">左</button>
+                    <button class="anchor-btn" id="anchorRight">右</button>
+                    <button class="confirm-btn" id="confirmCanvas">确认</button>
+                </div>
+            </div>
+            <div class="panel-section">
+                <div class="section-title"><span class="collapse-btn"></span> 图层 <span class="desel-dot" id="deselDot" title="取消选中"></span></div>
+                <div class="layer-list" id="layerList"></div>
+            </div>
+            <div class="panel-section" id="propsPanel" style="display:none;">
+                <div class="section-title"><span class="collapse-btn"></span> 属性</div>
+                <div id="propsContent"></div>
+            </div>
+            <div class="panel-section">
+                <div class="section-title"><span class="collapse-btn"></span> 导出</div>
+                <div class="field-row">
+                    <div class="field"><label>缩放倍率</label><input type="number" id="exportScale" value="1" min="0.1" step="0.1"></div>
+                    <div class="field"><label>格式</label><select id="exportFormat"><option value="png">PNG</option><option value="jpeg">JPG</option></select></div>
+                </div>
+                <div class="field" id="exportQualityRow"><label>JPG 质量</label><input type="number" id="exportQuality" value="70" min="1" max="100"></div>
+                <div class="field"><label>项目名称</label><input type="text" id="projectName" value="project" placeholder="项目名称"></div>
+                <div class="btn-row">
+                    <button class="btn primary" id="btnSave">导出图像</button>
+                    <button class="btn" id="btnExport">导出项目</button>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-tab" id="sidebarTab" style="display:none">◀</div>
+    </div>
+    <script src="editor.js"></script>
+</body>
+</html>

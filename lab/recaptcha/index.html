@@ -1,110 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>reCAPTCHA 练习器 - Vanadiry</title>
-	<link rel="shortcut icon" href="https://data.vanadiry.com/icon/SuperTinyIcons/google.svg">
-	<script src="/assets/control.js"></script>
-	<style>
-		td {
-			border: 1px solid rgb(197, 197, 197);
-			text-align: center;
-			padding: 2px;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reCAPTCHA 练习器 - Vanadiry</title>
+    <link rel="shortcut icon" href="https://data.vanadiry.com/icon/SuperTinyIcons/google.svg">
+    <script src="/assets/control.js"></script>
+    <link rel="stylesheet" href="/assets/lab/style.css">
+    <style>
+        .recaptcha-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(304px, 1fr));
+            gap: 4px;
+            justify-items: center;
+        }
+        .recaptcha-grid .g-recaptcha {
+            transform-origin: top center;
+        }
+        .lab-container { max-width: 960px; }
+        h2 { text-align: center; }
+    </style>
 </head>
 
 <body>
-	<table style="margin: 0 auto;border-collapse: collapse">
-		<caption style="font-size: 2.0em">
-			<p>reCAPTCHA 练习器</p>
-		</caption>
-		<tbody>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-				<td>
-					<div class="g-recaptcha" data-sitekey="6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj"></div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<footer style="text-align:center">
-		<p>必须从 vanadiry.com 打开这个页面，不然会出现网域错误</p>
-	</footer>
-	<script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
+    <div class="lab-container">
+        <h2>reCAPTCHA 练习器</h2>
+        <div class="recaptcha-grid" id="recaptchaGrid"></div>
+        <p class="lab-muted" style="text-align:center;margin-top:16px;">必须从 vanadiry.com 打开，否则会出现网域错误</p>
+    </div>
+    <div class="lab-footer">
+        © 2026 <a href="https://vanadiry.com/">Vanadiry</a>
+    </div>
+    <script>
+        const TOTAL = 21;
+        const SITEKEY = '6Le4vT4bAAAAAFdMZQ1cuOgEzIkYfW2wwQ13PCWj';
+        const grid = document.getElementById('recaptchaGrid');
+        for (let i = 0; i < TOTAL; i++) {
+            const div = document.createElement('div');
+            div.className = 'g-recaptcha';
+            div.dataset.sitekey = SITEKEY;
+            grid.appendChild(div);
+        }
+    </script>
+    <script src="https://www.recaptcha.net/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

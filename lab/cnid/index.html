@@ -1,23 +1,394 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <title>中国身份证号码校验 - Vanadiry</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/assets/lab/style.css">
+    <style>
+        .lab-container { max-width: 900px; }
+        h2 { text-align: center; margin-bottom: 28px; }
+
+        .id-groups-wrap { display: flex; gap: 28px; margin-bottom: 20px; justify-content: center; }
+        .id-group-box { display: flex; flex-direction: column; align-items: center; }
+        .id-label { font-size: 11px; color: #999; font-weight: 600; margin-bottom: 6px; letter-spacing: 2px; white-space: nowrap; }
+        .id-input-group { display: flex; gap: 3px; }
+        .id-row-last { display: flex; gap: 28px; }
+
+        input.id-input {
+            width: 38px; height: 44px; padding: 0;
+            font-size: 22px; font-family: var(--lab-mono); text-align: center;
+            border: 1px solid #d1d5db; border-radius: 6px;
+            outline: none; transition: 0.15s; background: #fff; color: #1f2937;
+        }
+        input.id-input:hover { border-color: #9ca3af; }
+        input.id-input:focus { border-color: #0078d4; box-shadow: 0 0 0 3px rgba(0,120,212,0.12); z-index: 1; position: relative; }
+        input.id-input.filled { background: #f8fafc; border-color: #cbd5e1; }
+        input.id-input.error { border-color: #e00; background: #fef2f2; animation: shake 0.25s; }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-3px); }
+            40% { transform: translateX(3px); }
+            60% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+        }
+
+        /* 结果卡片 */
+        .result-card {
+            background: #fff; border-radius: 10px; box-shadow: var(--lab-shadow);
+            padding: 18px 22px; margin-top: 4px;
+        }
+        .result-card .status {
+            font-size: 17px; font-weight: 600; margin-bottom: 14px; padding-bottom: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .result-card .status.valid { color: #16a34a; }
+        .result-card .status.invalid { color: #dc2626; }
+        .result-card .status.waiting { color: #6b7280; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .info-item { font-size: 14px; }
+        .info-item .key { font-size: 11px; color: #9ca3af; margin-bottom: 2px; letter-spacing: 1px; }
+        .info-item .val { color: #1f2937; }
+        .info-item .val.err { color: #dc2626; }
+
+        /* 校验过程 */
+        .step-header {
+            display: flex; align-items: baseline; gap: 10px;
+            margin-top: 16px; padding-top: 14px; border-top: 1px solid #f3f4f6;
+        }
+        .step-header .step-title {
+            font-size: 14px; font-weight: 600; color: #1f2937;
+        }
+        .step-header .step-err {
+            font-size: 13px; color: #dc2626;
+        }
+
+        .step-table-wrap { overflow-x: auto; margin-top: 8px; }
+        .step-table { border-collapse: collapse; font-size: 13px; font-family: var(--lab-mono); width: 100%; }
+        .step-table th, .step-table td {
+            border: 1px solid #e5e7eb; padding: 3px 6px; text-align: center; min-width: 28px;
+            font-family: var(--lab-mono); white-space: nowrap;
+        }
+        .step-table th { background: #f9fafb; font-weight: 500; color: #9ca3af; font-family: var(--lab-font); }
+        .step-table td.err { background: #fef2f2; color: #dc2626; }
+        .step-table td.match { background: #f0fdf4; color: #16a34a; }
+        .step-table td.summary { text-align: center; font-family: var(--lab-mono); font-size: 13px; -webkit-text-size-adjust: none; }
+
+        @media (max-width: 700px) {
+            .id-groups-wrap { flex-direction: column; gap: 10px; align-items: center; }
+            .id-row-last { gap: 16px; }
+            input.id-input { width: 32px; height: 38px; font-size: 18px; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
     <script src="/assets/control.js"></script>
 </head>
 
 <body>
-    <div class="center-wrap">
+    <div class="lab-container">
         <h2>中国身份证号码校验</h2>
         <div class="id-groups-wrap" id="id-groups-wrap"></div>
-        <div class="check-info" id="check-info"></div>
-        <div class="check-step" id="check-step"></div>
+        <div class="result-card" id="resultCard" style="display:none;">
+            <div class="status" id="status"></div>
+            <div class="info-grid" id="infoGrid"></div>
+            <div id="stepSection"></div>
+        </div>
     </div>
-    <script src="function.js"></script>
+    <div class="lab-footer">
+        © 2026 <a href="https://vanadiry.com/">Vanadiry</a>
+    </div>
+    <script>
+        const labelConfig = [
+            { len: 6, text: '地区码' },
+            { len: 8, text: '出生日期' },
+            { len: 3, text: '顺序码' },
+            { len: 1, text: '校验码' },
+        ];
+        const $ = id => document.getElementById(id);
+        const groupsWrap = $('id-groups-wrap');
+        const inputs = [];
+        let inputIdx = 0;
+
+        labelConfig.forEach((g, gi) => {
+            const box = document.createElement('div');
+            box.className = 'id-group-box';
+            box.innerHTML = `<div class="id-label">${g.text}</div>`;
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'id-input-group';
+            for (let i = 0; i < g.len; i++) {
+                const inp = document.createElement('input');
+                inp.type = 'text'; inp.maxLength = 1; inp.className = 'id-input';
+                inp.inputMode = inputIdx === 17 ? 'text' : 'numeric';
+                inp.autocomplete = 'off'; inp.dataset.idx = inputIdx;
+                groupDiv.appendChild(inp); inputs.push(inp); inputIdx++;
+            }
+            box.appendChild(groupDiv);
+            if (gi === 2) {
+                const row = document.createElement('div');
+                row.className = 'id-row-last';
+                row.appendChild(box);
+                groupsWrap.appendChild(row);
+            } else if (gi === 3) {
+                groupsWrap.lastChild.appendChild(box);
+            } else {
+                groupsWrap.appendChild(box);
+            }
+        });
+
+        let areaTree = {}, areaLoadFailed = false;
+        fetch('data.json')
+            .then(r => r.json()).then(d => { areaTree = d; update(); })
+            .catch(() => { areaLoadFailed = true; update(); });
+
+        function lookupArea(code) {
+            // 返回 { name, errFrom }
+            // errFrom: -1=合法, 0=省不合法, 2=市不合法, 4=区不合法
+            if (code.length !== 6) return { name: null, errFrom: 0 };
+            const p = code.slice(0, 2), c = code.slice(2, 4), d = code.slice(4, 6);
+            const l1 = areaTree[p];
+            if (!l1) return { name: null, errFrom: 0 };
+
+            if (c === '00' && d === '00') return { name: l1.n, errFrom: -1 };
+
+            const l2 = l1[c];
+            if (!l2) return { name: l1.n, errFrom: 2, errCity: true, errDistrict: true };
+
+            const prefix = [l1.n];
+            if (typeof l2 === 'object' && l2.n) prefix.push(l2.n);
+
+            let l3;
+            if (d === '00') {
+                l3 = l2['00'];
+                if (!l3) return { name: prefix.join(''), errFrom: 4, errDistrict: true };
+                if (typeof l3 === 'string') return { name: prefix.join('') + l3, errFrom: -1 };
+                return { name: prefix.join('') + (l3.n || ''), errFrom: -1 };
+            }
+
+            l3 = l2[d];
+            if (!l3) return { name: prefix.join(''), errFrom: 4, errDistrict: true };
+
+            if (typeof l3 === 'string') {
+                let name = l3, iCount = 0;
+                while (name.startsWith('i')) { iCount++; name = name.slice(1); }
+                iCount = Math.min(iCount, 2);
+                return { name: prefix.slice(0, prefix.length - iCount).join('') + name, errFrom: -1 };
+            }
+
+            return { name: prefix.join('') + (l3.n || ''), errFrom: -1 };
+        }
+
+        const WEIGHTS = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+        const CHECK_CODES = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+
+        function calcCheckCode(id17) {
+            let sum = 0, steps = [];
+            for (let i = 0; i < 17; i++) {
+                const n = +id17[i], s = n * WEIGHTS[i];
+                sum += s; steps.push({ n, w: WEIGHTS[i], s });
+            }
+            return { code: CHECK_CODES[sum % 11], steps, sum, mod: sum % 11 };
+        }
+
+        function checkBirthDate(vals) {
+            const y = vals.slice(6, 10).join(''), m = vals.slice(10, 12).join(''), d = vals.slice(12, 14).join('');
+            if (y.length !== 4 || m.length !== 2 || d.length !== 2) return { valid: false, msg: '日期不完整', errorAt: [] };
+            const yy = +y, mm = +m, dd = +d;
+            if (isNaN(yy) || isNaN(mm) || isNaN(dd)) return { valid: false, msg: '日期格式错误', errorAt: [] };
+
+            const errors = [], errAt = [];
+            const thisYear = new Date().getFullYear();
+
+            if (yy < 1900) { errors.push('年份不能早于 1900'); errAt.push(6, 7, 8, 9); }
+            if (mm < 1 || mm > 12) { errors.push('月份无效'); errAt.push(10, 11); }
+
+            if (mm >= 1 && mm <= 12) {
+                const dim = [31, (yy % 4 === 0 && yy % 100 !== 0) || yy % 400 === 0 ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                if (dd < 1 || dd > dim[mm - 1]) { errors.push('日期无效'); errAt.push(12, 13); }
+            } else if (dd < 1 || dd > 31) {
+                errors.push('日期无效'); errAt.push(12, 13);
+            }
+
+            // 年份超过今年，不论月份日期是否合法都报
+            if (yy > thisYear) {
+                errors.push('不能晚于今天');
+                errAt.push(6, 7, 8, 9, 10, 11, 12, 13);
+            }
+
+            if (errors.length > 0) {
+                return { valid: false, msg: errors.join('；'), errorAt: [...new Set(errAt)] };
+            }
+
+            // 组合日期晚于今天（年份当年、月份日期合法的情况）
+            const now = new Date(), today = new Date(thisYear, now.getMonth(), now.getDate());
+            if (new Date(yy, mm - 1, dd) > today) {
+                return { valid: false, msg: '不能晚于今天', errorAt: [6, 7, 8, 9, 10, 11, 12, 13] };
+            }
+
+            return { valid: true, msg: `${y}-${m}-${d}`, errorAt: [] };
+        }
+
+        function update() {
+            let vals = inputs.map(inp => inp.value.toUpperCase());
+            for (let i = 0; i < 18; i++) {
+                if (i < 17) {
+                    if (!/^\d$/.test(vals[i])) vals[i] = '';
+                } else {
+                    vals[i] = vals[i].replace(/[^\d]/g, 'X').slice(-1);
+                }
+                inputs[i].value = vals[i];
+                inputs[i].classList.toggle('filled', vals[i].length === 1);
+            }
+
+            const areaCode = vals.slice(0, 6).join('');
+            const areaResult = areaCode.length === 6 ? lookupArea(areaCode) : null;
+            const areaValid = areaResult && areaResult.errFrom === -1;
+            const areaErr = areaResult && areaResult.errFrom >= 0 && !areaLoadFailed;
+            const areaName = areaResult ? areaResult.name : null;
+
+            // 地区码错误：精确标红
+            for (let i = 0; i < 6; i++) inputs[i].classList.remove('error');
+            if (areaErr && areaResult) {
+                const start = areaResult.errFrom;
+                const end = areaResult.errCity ? 5 : 5;
+                for (let i = start; i <= end; i++) {
+                    if (vals[i]) inputs[i].classList.add('error');
+                }
+            }
+
+            // 出生日期
+            let birthCheck = null, birthValid = false, birthErrIndices = [];
+            const birthDigits = vals.slice(6, 14);
+            if (birthDigits.every(v => v.length === 1)) {
+                birthCheck = checkBirthDate(vals);
+                birthValid = birthCheck.valid;
+                birthErrIndices = birthCheck.errorAt;
+                for (let i = 6; i < 14; i++) inputs[i].classList.remove('error');
+                birthErrIndices.forEach(i => { if (vals[i]) inputs[i].classList.add('error'); });
+            } else {
+                for (let i = 6; i < 14; i++) inputs[i].classList.remove('error');
+            }
+
+            // 校验码
+            const filled17 = vals.slice(0, 17).every(v => v.length === 1);
+            let checkResult = null, checkErr = false;
+            if (filled17) {
+                checkResult = calcCheckCode(vals.slice(0, 17).join(''));
+                if (vals[17] && vals[17] !== checkResult.code) {
+                    inputs[17].classList.add('error');
+                    checkErr = true;
+                } else {
+                    inputs[17].classList.remove('error');
+                }
+            } else {
+                inputs[17].classList.remove('error');
+            }
+
+            const anyFilled = vals.some(v => v.length === 1);
+            if (!anyFilled) { $('resultCard').style.display = 'none'; return; }
+            $('resultCard').style.display = 'block';
+
+            const allValid = filled17 && vals[17] && areaValid && birthValid && !checkErr;
+            const hasError = areaErr || (birthCheck && !birthValid) || checkErr;
+
+            // 状态
+            const status = $('status');
+            if (allValid) { status.className = 'status valid'; status.textContent = '身份证号码有效'; }
+            else if (hasError) { status.className = 'status invalid'; status.textContent = '校验未通过'; }
+            else { status.className = 'status waiting'; status.textContent = '正在输入…'; }
+
+            // 信息网格
+            let grid = '';
+            grid += `<div class="info-item"><div class="key">地区</div><div class="val${areaErr ? ' err' : ''}">`;
+            if (areaCode.length === 6 && areaValid) {
+                grid += areaName;
+            } else if (areaCode.length < 6) {
+                grid += '—';
+            } else if (areaLoadFailed) {
+                grid += '数据加载失败';
+            } else if (areaErr && areaResult) {
+                grid += areaName || areaCode;
+                const msgs = { 0: '地区码不合法', 2: '市、区号码不合法', 4: '区号码不合法' };
+                grid += `<span class="err">（${msgs[areaResult.errFrom] || '号码不合法'}）</span>`;
+            } else {
+                grid += areaCode + '（无效）';
+            }
+            grid += '</div></div>';
+
+            grid += `<div class="info-item"><div class="key">出生日期</div><div class="val${birthCheck && !birthValid ? ' err' : ''}">`;
+            if (birthCheck) grid += birthCheck.msg;
+            else grid += '—';
+            grid += '</div></div>';
+
+            grid += `<div class="info-item"><div class="key">性别</div><div class="val">`;
+            if (vals[16]) grid += parseInt(vals[16]) % 2 === 1 ? '男' : '女';
+            else grid += '—';
+            grid += '</div></div>';
+            $('infoGrid').innerHTML = grid;
+
+            // 校验过程
+            if (filled17 && checkResult) {
+                const { code, steps, sum, mod } = checkResult;
+                const errText = checkErr ? '校验码错误，应为 ' + code : '';
+
+                let html = `<div class="step-header">`;
+                html += `<span class="step-title">校验过程</span>`;
+                if (errText) html += `<span class="step-err">${errText}</span>`;
+                html += `</div>`;
+
+                html += '<div class="step-table-wrap"><table class="step-table">';
+                // 数字
+                html += '<tr><th>数字</th>';
+                for (let i = 0; i < 17; i++) html += `<td${vals[i] ? '' : ' class="err"'}>${vals[i] || ''}</td>`;
+                html += `<td class="${checkErr ? 'err' : 'match'}">${vals[17] || ''}</td></tr>`;
+                // 权重
+                html += '<tr><th>权重</th>';
+                WEIGHTS.forEach(w => html += `<td>${w}</td>`);
+                html += '<td></td></tr>';
+                // 乘积
+                html += '<tr><th>乘积</th>';
+                steps.forEach((s, i) => html += `<td${vals[i] ? '' : ' class="err"'}>${vals[i] ? s.s : ''}</td>`);
+                html += '<td></td></tr>';
+                // 求和
+                html += `<tr><th>求和</th><td class="summary" colspan="18">${steps.map(s => s.s).join(' + ')} = ${sum}</td></tr>`;
+                // 取模
+                html += `<tr><th>取模 11</th><td class="summary" colspan="18">${sum} % 11 = ${mod}，校验码 = ${code}</td></tr>`;
+                html += '</table></div>';
+
+                $('stepSection').innerHTML = html;
+            } else {
+                $('stepSection').innerHTML = '';
+            }
+        }
+
+        inputs.forEach((inp, idx) => {
+            inp.addEventListener('input', () => {
+                if (idx === 17) {
+                    const v = inp.value.slice(-1);
+                    if (v && !/^\d$/.test(v)) inp.value = 'X';
+                }
+                if (inp.value && idx < 17) inputs[idx + 1].focus();
+                update();
+            });
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !inp.value && idx > 0) inputs[idx - 1].focus();
+            });
+            inp.addEventListener('focus', update);
+            inp.addEventListener('paste', e => {
+                const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\s/g, '').toUpperCase();
+                if (paste.length === 18 && /^[\d]{17}[\dX]$/.test(paste)) {
+                    e.preventDefault();
+                    for (let i = 0; i < 18; i++) inputs[i].value = paste[i];
+                    inputs[17].focus(); update();
+                }
+            });
+        });
+
+        update();
+    </script>
 </body>
 
 </html>
