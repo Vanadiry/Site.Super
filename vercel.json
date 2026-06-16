@@ -3,6 +3,5 @@
   "cleanUrls": true,
   "fluid": true,
   "regions": ["hnd1"],
-  "framework": null,
-  "public": false
+  "framework": null
 }
