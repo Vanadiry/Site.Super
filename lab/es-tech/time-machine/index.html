@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>时间跳跃器 - 赤石科技 - Vanadiry</title>
+    <link rel="stylesheet" href="/assets/lab/style.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        h2 { text-align: center; margin-bottom: 8px; }
+        .lab-container { max-width: 520px; width: 100%; }
+
+        :root {
+            --est-tm-card-bg: #181a1b;
+            --est-tm-btn-bg: #23272a;
+            --est-tm-btn-color: #e6e6e6;
+            --est-tm-btn-bg-disabled: #2c2f31;
+            --est-tm-btn-color-disabled: #888;
+            --est-tm-btn-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            --est-tm-progress-bg: #23272a;
+            --est-tm-progress-bar: #4f8cff;
+            --est-tm-step-color: #4f8cff;
+            --est-tm-status-color: #38b000;
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --est-tm-card-bg: #fff;
+                --est-tm-btn-bg: #fff;
+                --est-tm-btn-color: #222;
+                --est-tm-btn-bg-disabled: #e0e0e0;
+                --est-tm-btn-color-disabled: #aaa;
+                --est-tm-btn-shadow: 0 2px 8px rgba(0,0,0,0.10);
+                --est-tm-progress-bg: #e0e0e0;
+                --est-tm-progress-bar: #4f8cff;
+                --est-tm-step-color: #4f8cff;
+                --est-tm-status-color: #38b000;
+            }
+        }
+
+        .jump-btn {
+            display: block;
+            width: 100%;
+            background: var(--est-tm-btn-bg);
+            color: var(--est-tm-btn-color);
+            border: none;
+            border-radius: var(--lab-radius);
+            padding: 16px 0;
+            font-size: 1.15em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--est-tm-btn-shadow);
+            transition: background 0.2s, transform 0.1s, color 0.2s;
+            position: relative;
+            font-family: var(--lab-font);
+        }
+        .jump-btn:active { transform: scale(0.98); }
+        .jump-btn.disabled, .jump-btn:disabled {
+            background: var(--est-tm-btn-bg-disabled) !important;
+            color: var(--est-tm-btn-color-disabled) !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+        }
+        #jumpProgressBarContainer {
+            width: 100%;
+            height: 12px;
+            background: var(--est-tm-progress-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        #jumpProgressBar {
+            height: 100%;
+            width: 0;
+            background: var(--est-tm-progress-bar);
+            transition: width 0.2s;
+        }
+        #jumpingBtn {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        #jumpSpinner svg { display: block; }
+        #countdownTime {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--est-tm-step-color);
+            margin-top: 8px;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://data.vanadiry.com/site/favicon.ico">
+    <script src="/assets/control.js"></script>
+</head>
+
+<body>
+    <div class="lab-container">
+        <h2>时间跳跃器</h2>
+
+        <div id="jumpButtons" style="display:flex;flex-direction:column;gap:16px;">
+            <button class="jump-btn" data-ms="10000"><span>向未来跳跃 10 秒</span></button>
+            <button class="jump-btn" data-ms="60000"><span>向未来跳跃 1 分钟</span></button>
+            <button class="jump-btn" data-ms="3600000"><span>向未来跳跃 1 小时</span></button>
+            <button class="jump-btn disabled" disabled>向过去跳跃（正在研发）</button>
+        </div>
+
+        <div id="jumpProgress" style="display:none;flex-direction:column;align-items:center;">
+            <button id="jumpingBtn" class="jump-btn disabled" disabled style="margin-bottom:18px">
+                <span id="jumpSpinner" style="margin-right:10px;">
+                    <svg width="20" height="20" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#444" stroke-width="6" opacity="0.18"/><circle cx="25" cy="25" r="20" fill="none" stroke="#4f8cff" stroke-width="6" stroke-linecap="round" stroke-dasharray="40 85"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.7s" repeatCount="indefinite"/></circle></svg>
+                </span>
+                <span id="jumpingBtnText"></span>
+            </button>
+            <div id="countdownContainer" style="width:100%;margin-bottom:8px;">
+                <div id="jumpProgressBarContainer"><div id="jumpProgressBar"></div></div>
+                <div id="countdownTime"></div>
+            </div>
+        </div>
+
+        <div id="jumpResult" style="display:none;flex-direction:column;align-items:center;">
+            <button id="retryJumpBtn" class="jump-btn disabled" disabled style="margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+                <span id="jumpCheck" style="margin-right:10px;">
+                    <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#38b000" stroke-width="2" opacity="0.18"/><polyline points="5,11 9,15 15,6" fill="none" stroke="#38b000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span id="jumpedBtnText"></span>
+            </button>
+            <div id="jumpResultText" style="color:var(--est-tm-status-color);font-size:1.2em"></div>
+        </div>
+    </div>
+    <div class="lab-footer">
+        © 2026 Vanadiry 版权所有
+    </div>
+
+    <script>
+    (function(){
+        function ready(fn){if(document.readyState!=='loading')fn();else document.addEventListener('DOMContentLoaded',fn);}
+        ready(function(){
+            const jumpButtons=document.querySelectorAll('.jump-btn:not(.disabled)');
+            const jumpButtonsContainer=document.getElementById('jumpButtons');
+            const jumpProgress=document.getElementById('jumpProgress');
+            const jumpResult=document.getElementById('jumpResult');
+            const jumpingBtnText=document.getElementById('jumpingBtnText');
+            const jumpSpinner=document.getElementById('jumpSpinner');
+            const jumpProgressBar=document.getElementById('jumpProgressBar');
+            const countdownTime=document.getElementById('countdownTime');
+            const retryJumpBtn=document.getElementById('retryJumpBtn');
+            const jumpResultText=document.getElementById('jumpResultText');
+            const jumpLabels={10000:"向未来跳跃 10 秒",60000:"向未来跳跃 1 分钟",3600000:"向未来跳跃 1 小时"};
+            let timer=null,lastMs=0;
+            function formatMs(ms){let s=Math.floor(ms/1000),msLeft=ms%1000;return`${s}.${msLeft.toString().padStart(3,'0')}`;}
+            function formatJumpLabel(ms){
+                if(ms===10000)return"10 秒";
+                if(ms===60000)return"1 分钟";
+                if(ms===3600000)return"1 小时";
+                if(ms<60000)return`${Math.floor(ms/1000)} 秒`;
+                if(ms<3600000)return`${Math.floor(ms/60000)} 分钟`;
+                return`${Math.floor(ms/3600000)} 小时`;
+            }
+            jumpButtons.forEach(btn=>{
+                btn.addEventListener('click',()=>{
+                    const ms=parseInt(btn.getAttribute('data-ms'));
+                    lastMs=ms;
+                    jumpButtonsContainer.style.display='none';
+                    jumpProgress.style.display='flex';
+                    jumpingBtnText.textContent=jumpLabels[ms];
+                    jumpSpinner.style.display='flex';
+                    jumpProgressBar.style.width='0';
+                    countdownTime.textContent=`正在跳跃，请等待 ${formatMs(ms)} 秒`;
+                    let start=Date.now(),end=start+ms,lastWidth=0;
+                    function update(){
+                        let now=Date.now(),left=Math.max(0,end-now);
+                        let percent=Math.min(1,(ms-left)/ms),width=percent*100;
+                        if(width!==lastWidth){jumpProgressBar.style.width=width+'%';lastWidth=width;}
+                        countdownTime.textContent=`正在跳跃，请等待 ${formatMs(left)} 秒`;
+                        if(left>0)timer=setTimeout(update,50);else finishJump(ms);
+                    }
+                    update();
+                });
+            });
+            function finishJump(ms){
+                jumpProgress.style.display='none';
+                jumpResult.style.display='flex';
+                document.getElementById('jumpedBtnText').textContent=jumpLabels[ms];
+                document.getElementById('jumpCheck').style.display='inline-block';
+                retryJumpBtn.classList.remove('disabled');
+                retryJumpBtn.disabled=false;
+                retryJumpBtn.innerHTML=`<span id="jumpCheck" style="display:inline-block;margin-right:10px;">
+                    <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#38b000" stroke-width="2" opacity="0.18"/><polyline points="5,11 9,15 15,6" fill="none" stroke="#38b000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span id="jumpedBtnText">再来一次</span>`;
+                if(jumpResultText)jumpResultText.textContent=`成功跳跃到${formatJumpLabel(ms)}以后`;
+            }
+            retryJumpBtn.addEventListener('click',function(e){
+                if(!retryJumpBtn.classList.contains('disabled')){
+                    e.preventDefault();window.location.reload();
+                }
+            });
+        });
+    })();
+    </script>
+</body>
+
+</html>

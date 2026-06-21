@@ -1,2 +1,3 @@
 User-agent: *
 Disallow: /info/
+Disallow: /public/lab/es-tech/
